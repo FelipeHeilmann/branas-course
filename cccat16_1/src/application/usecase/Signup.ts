@@ -9,9 +9,7 @@ export class Signup {
         const existsAccount =  await this.accountRepository.getByEmail(input.email);
         if(existsAccount) throw new Error("Email already in use");
         const account = AccountFactory.create(input.name, input.email, input.cpf, input.isPassenger ?? false, input.carPlate);
-
         await this.accountRepository.save(account);
-
         return { accountId: account.id };
     }
 }

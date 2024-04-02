@@ -14,7 +14,6 @@ export default class Pessanger extends Account {
         const name = Name.create(rawName);
         const email = Email.create(rawEmail);
         const cpf = CPF.create(rawCpf);
-
         return new Pessanger(id, name, email, cpf);
     }
 
@@ -22,7 +21,6 @@ export default class Pessanger extends Account {
         const name = Name.create(rawName);
         const email = Email.create(rawEmail);
         const cpf = CPF.create(rawCpf);
-
         return new Pessanger(id, name, email, cpf);
     } 
 }
