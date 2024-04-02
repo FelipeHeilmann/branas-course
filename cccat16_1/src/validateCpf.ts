@@ -5,7 +5,7 @@ export function validate (rawCpf: string) {
 	if (isAllDigitsEqual(cpf)) return false
 	const firstDigit = calculateDigit(cpf.slice(0, 9), 10);
 	const secondDigit = calculateDigit(cpf.slice(0, 9) + firstDigit, 11);
-	return `${firstDigit}${secondDigit}` == cpf.slice(9);
+	return `${firstDigit}${secondDigit}` === cpf.slice(9);
 }
 
 function removeNonDigits(cpf: string) { 
