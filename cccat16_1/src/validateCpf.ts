@@ -3,8 +3,8 @@ export function validate (rawCpf: string) {
 	const cpf = removeNonDigits(rawCpf);
 	if (!isValidLenght(cpf)) return false;
 	if (isAllDigitsEqual(cpf)) return false
-	const firstDigit = calculateDigit(cpf.slice(0, 9), 10);
-	const secondDigit = calculateDigit(cpf.slice(0, 9) + firstDigit, 11);
+	const firstDigit = calculateDigit(cpf, 10);
+	const secondDigit = calculateDigit(cpf, 11);
 	return `${firstDigit}${secondDigit}` === cpf.slice(9);
 }
 
@@ -24,7 +24,7 @@ function isAllDigitsEqual(cpf: string) {
 function calculateDigit(cpf: string, factor: number) {
 	let total = 0;
 	for (const digit of cpf) {
-		total += Number(digit) * factor--;
+		if (factor > 1) total += parseInt(digit) * factor--;
 	}
 	const remainder = total % 11;
 	return remainder < 2 ? 0 : 11 - remainder;
