@@ -6,7 +6,7 @@ import crypto from "node:crypto";
 import { Plate } from "./Plate";
 
 export default class Driver extends Account {
-    private constructor(id: string, name: Name, email: Email, cpf: CPF, plate: Plate){
+    private constructor(id: string, name: Name, email: Email, cpf: CPF, plate: Plate) {
         super(id, name, email, cpf, false, plate);
     }
 

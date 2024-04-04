@@ -1,5 +1,5 @@
-export class Email{
-    private value: string
+export class Email {
+    private value: string;
 
     private constructor(name: string) {
         this.value = name;

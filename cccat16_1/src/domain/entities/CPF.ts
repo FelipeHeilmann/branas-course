@@ -1,5 +1,5 @@
 export class CPF {
-    private value: string
+    private value: string;
 
     private constructor (cpf: string) {
         this.value = cpf;

@@ -4,7 +4,7 @@ import { AccountFactory } from "../../domain/factories/AccountFactory";
 import { IAccountRepository } from "../../domain/repositories/IAccountRepository";
 import pgp from "pg-promise";
 
-export class AccountRepositoryDatabase implements IAccountRepository{
+export class AccountRepositoryDatabase implements IAccountRepository {
     async getByEmail(email: string): Promise<Account | null> {
         const connection = pgp()("postgres://postgres:postgres@localhost:5432/branas");
         const [account] = await connection.query("select * from cccat16.account where email = $1", [email]);

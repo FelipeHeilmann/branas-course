@@ -1,7 +1,7 @@
 import Account from "../../domain/entities/Account";
 import { IAccountRepository } from "../../domain/repositories/IAccountRepository";
 
-export default class AccountRepositoryMemory implements IAccountRepository{
+export default class AccountRepositoryMemory implements IAccountRepository {
     private accounts: Account[];
 
     constructor(){

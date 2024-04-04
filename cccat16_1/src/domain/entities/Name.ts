@@ -1,5 +1,5 @@
-export class Name{
-    value: string
+export class Name {
+    value: string;
 
     private constructor(name: string) {
         this.value = name;

@@ -5,7 +5,7 @@ import { Name } from "./Name";
 import crypto from "node:crypto";
 
 export default class Pessanger extends Account {
-    private constructor(id: string, name: Name, email: Email, cpf: CPF){
+    private constructor(id: string, name: Name, email: Email, cpf: CPF) {
         super(id, name, email, cpf, true, null);
     }
 
