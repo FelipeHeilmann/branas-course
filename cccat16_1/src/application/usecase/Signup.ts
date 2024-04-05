@@ -1,5 +1,5 @@
 
-import { AccountFactory } from "../../domain/factories/AccountFactory";
+import Account from "../../domain/entities/Account";
 import { IAccountRepository } from "../../domain/repositories/IAccountRepository";
 
 export class Signup {
@@ -9,7 +9,7 @@ export class Signup {
     async execute(input: Input) {
         const existsAccount =  await this.accountRepository.getByEmail(input.email);
         if(existsAccount) throw new Error("Email already in use");
-        const account = AccountFactory.create(input.name, input.email, input.cpf, input.isPassenger ?? false, input.carPlate);
+        const account = Account.create(input.name, input.email, input.cpf, input.isPassenger ?? false, input.carPlate ?? null);
         await this.accountRepository.save(account);
         return { 
             accountId: account.id

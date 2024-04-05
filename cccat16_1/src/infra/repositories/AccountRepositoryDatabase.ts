@@ -1,6 +1,4 @@
 import Account from "../../domain/entities/Account";
-import { Email } from "../../domain/entities/Email";
-import { AccountFactory } from "../../domain/factories/AccountFactory";
 import { IAccountRepository } from "../../domain/repositories/IAccountRepository";
 import pgp from "pg-promise";
 
@@ -10,7 +8,7 @@ export class AccountRepositoryDatabase implements IAccountRepository {
         const [account] = await connection.query("select * from cccat16.account where email = $1", [email]);
         await connection.$pool.end();
         if(!account) return null;
-        return AccountFactory.restore(account.id, account.name, account.email, account.cpf, account.is_passenger, account.car_plate);
+        return Account.restore(account.id, account.name, account.email, account.cpf, account.is_passenger, account.car_plate);
     }
     async save(account: Account): Promise<void> {
         const connection = pgp()("postgres://postgres:postgres@localhost:5432/branas");
