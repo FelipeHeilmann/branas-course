@@ -7,11 +7,19 @@ export default class AccountRepositoryMemory implements IAccountRepository {
     constructor(){
         this.accounts = [];
     }
+
+    async getById(accountId: string): Promise<Account | null> {
+        const account = this.accounts.find(account => account.id === accountId);
+        if(!account) return null;
+        return account;
+    }
+
     async getByEmail(email: string): Promise<Account | null> {
         const account = this.accounts.find(account => account.email.getValue() === email);
         if(!account) return null;
         return account;
     }
+
     async save(account: Account): Promise<void> {
         this.accounts.push(account);
     }
