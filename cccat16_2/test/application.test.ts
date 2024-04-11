@@ -151,7 +151,7 @@ test("Deve criar uma conta para o passageiro com spy", async function () {
 });
 
 // Mock mistura características de Stub e Spy, criando as expectativas no próprio objeto (mock)
-test("Deve criar uma conta para o passageiro com mock", async function () {
+test.only("Deve criar uma conta para o passageiro com mock", async function () {
 	const input = {
 		name: "John Doe",
 		email: `john.doe${Math.random()}@gmail.com`,

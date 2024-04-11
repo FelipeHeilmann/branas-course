@@ -22,7 +22,7 @@ export class AccountDAODatabase implements IAccountDAO {
 	}
 	
 	async saveAccount (account: any) {
-		const connection = pgp()("postgres://postgres:postfres@localhost:5432/branas");
+		const connection = pgp()("postgres://postgres:postgres@localhost:5432/branas");
 		await connection.query("insert into cccat16.account (account_id, name, email, cpf, car_plate, is_passenger, is_driver) values ($1, $2, $3, $4, $5, $6, $7)", [account.accountId, account.name, account.email, account.cpf, account.carPlate, !!account.isPassenger, !!account.isDriver]);
 		await connection.$pool.end();
 	}
