@@ -1,13 +1,14 @@
-import { validate } from "../src/domain/validateCpf";
 
 // Unit Test
+
+import CPF from "../src/domain/vo/CPF";
 
 test.each([
 	"97456321558",
 	"71428793860",
 	"87748248800"
 ])("Deve testar um cpf válido: %s", function (cpf: any) {
-	expect(validate(cpf)).toBe(true);
+	expect(new CPF(cpf)).toBeDefined();
 });
 
 test.each([
@@ -17,5 +18,5 @@ test.each([
 	"123",
 	"1234566789123456789"
 ])("Deve testar um cpf inválido: %s", function (cpf: any) {
-	expect(validate(cpf)).toBe(false);
+	expect(() => new CPF(cpf)).toThrow(new Error("Invalid cpf"));
 });
