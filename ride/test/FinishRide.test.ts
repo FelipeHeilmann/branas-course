@@ -1,33 +1,32 @@
 import AcceptRide from "../src/application/usecase/AcceptRide";
 import FinishRide from "../src/application/usecase/FinishRide";
 import GetRide from "../src/application/usecase/GetRide";
+import ProcessPayment from "../src/application/usecase/ProcessPayment";
 import RequestRide from "../src/application/usecase/RequestRide";
-import { Signup } from "../src/application/usecase/Signup";
 import StartRide from "../src/application/usecase/StartRide";
 import UpdatePosition from "../src/application/usecase/UpdatePosition";
 import { PgPromiseAdapter } from "../src/infra/database/DatabaseConnection";
 import Registry from "../src/infra/di/Registry";
-import { MailerGatewayMemory } from "../src/infra/gateway/MailerGateway";
-import PaymentGatewayHttp from "../src/infra/gateway/PaymentGatewayHttp";
-import { AccountRepositoryDatabase } from "../src/infra/repository/AccountRepository";
+import AccountGatewayHttp from "../src/infra/gateway/AccountGatewayHttp";
+import { AxiosAdatpter, FetchAdapter } from "../src/infra/http/HttpClient";
+import Mediator from "../src/infra/mediator/Mediator";
+import { RabbitMQAdapter } from "../src/infra/queue/Queue";
 import { PositionRepositoryDatabase } from "../src/infra/repository/PostionRepostiory";
 import { RideRepositoryDatabase } from "../src/infra/repository/RideRepository";
 
 test("Deve finalizar uma corrida", async function() {
     const connection = new PgPromiseAdapter();
-	const accountRepository = new AccountRepositoryDatabase(connection);
 	const rideRepository = new RideRepositoryDatabase(connection);
 	const positionRepository = new PositionRepositoryDatabase(connection);
-	const paymentGateway = new PaymentGatewayHttp();
-	const mailerGateway = new MailerGatewayMemory();
-	const signup = new Signup(accountRepository, mailerGateway);
+	const httpClient = new FetchAdapter();
+	const accountGateway = new AccountGatewayHttp(httpClient);
 	const inputSignupPassenger = {
 		name: "John Doe",
 		email: `john.doe${Math.random()}@gmail.com`,
 		cpf: "87748248800",
 		isPassenger: true
 	};
-    const outputSignupPassenger = await signup.execute(inputSignupPassenger);
+    const outputSignupPassenger = await accountGateway.signup(inputSignupPassenger);
     const inputSignupDriver = {
 		name: "John Doe",
 		email: `john.doe${Math.random()}@gmail.com`,
@@ -35,8 +34,8 @@ test("Deve finalizar uma corrida", async function() {
         carPlate: "AAA9999",
 		isDriver: true
 	};
-	const outputSignupDriver = await signup.execute(inputSignupDriver);
-	const requestRide = new RequestRide(accountRepository, rideRepository);
+	const outputSignupDriver = await accountGateway.signup(inputSignupDriver);
+	const requestRide = new RequestRide(accountGateway, rideRepository);
 	const inputRequestRide = {
 		passengerId: outputSignupPassenger.accountId,
 		fromLat: -27.584905257808835,
@@ -46,11 +45,11 @@ test("Deve finalizar uma corrida", async function() {
 	}
 	const outputRequestRide = await requestRide.execute(inputRequestRide);
 	expect(outputRequestRide.rideId).toBeDefined();
-	const getRide = new GetRide(accountRepository, rideRepository);
+	const getRide = new GetRide(accountGateway, rideRepository);
 	const inputGetRide = {
 		rideId: outputRequestRide.rideId
 	};
-	const accepetRide = new AcceptRide(rideRepository, accountRepository);
+	const accepetRide = new AcceptRide(rideRepository, accountGateway);
     const inputAccpetRide = {
         rideId: outputRequestRide.rideId,
         driverId: outputSignupDriver.accountId
@@ -77,8 +76,17 @@ test("Deve finalizar uma corrida", async function() {
     };
     await updatePosition.execute(inputUpdatePosition2);
 	const registry = Registry.getInstance();
+	const mediator = new Mediator()
+	const queue = new RabbitMQAdapter();
+	await queue.connect();
+	await queue.setup();
 	registry.provide("rideRepository", rideRepository);
-	registry.provide("paymentGateway", paymentGateway);
+	registry.provide("mediator", mediator);
+	registry.provide("queue", queue);
+	mediator.register("rideCompleted", async (data: any) => {
+		const processPayment = new ProcessPayment();
+		await processPayment.execute(data)
+	})
 	const finishRide = new FinishRide();
 	const inputFinishRide = {
 		rideId: outputRequestRide.rideId

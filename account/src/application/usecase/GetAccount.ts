@@ -1,6 +1,5 @@
 // use case
 
-import crypto from "crypto";
 import { AccountRepository } from "../../infra/repository/AccountRepository";
 
 export class GetAccount {
@@ -8,26 +7,30 @@ export class GetAccount {
 	constructor (readonly accountRepository: AccountRepository) {
 	}
 
-	async execute (input: any): Promise<Output> {
+	async execute (input: Input): Promise<Output> {
 		const account = await this.accountRepository.getAccountById(input.accountId);
 		return {
-			accoundId: account.accountId,
+			accountId: account.accountId,
 			name: account.getName(),
 			email: account.getEmail(),
 			cpf: account.getCPF(),
 			isDriver: account.isDriver,
-			isPassenger: account.isDriver,
+			isPassenger: account.isPassenger,
 			carPlate: account.getCarPlate()
 		}
 	}
 }
 
 type Output = {
-	accoundId: string,
+	accountId: string,
 	name: string,
 	email: string,
 	cpf: string,
 	isDriver: boolean,
 	isPassenger: boolean,
 	carPlate?: string,	
+}
+
+type Input = {
+	accountId: string
 }

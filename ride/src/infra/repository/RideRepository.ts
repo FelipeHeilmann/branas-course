@@ -21,8 +21,7 @@ export class RideRepositoryDatabase implements RideRepository {
 	}
 
 	async updateRide(ride: Ride): Promise<void> {
-		await this.connection.query("update cccat16.ride set status = $1, distance = $2, fare = $3, last_lat = $4, last_long = $5, driver_id = $6", [ride.getStatus(), ride.getDistance(), ride.getFare(), ride.getLastLat(), ride.getLastLong(), ride.getDriverId()]);
-	}
+		await this.connection.query("update cccat16.ride set status = $1, driver_id = $2, last_lat = $3, last_long = $4, distance = $5, fare = $6 where ride_id = $7", [ride.getStatus(), ride.driverId, ride.getLastLat(), ride.getLastLong(), ride.getDistance(), ride.getFare(), ride.rideId], true);	}
 
 	async getRideById(rideId: string): Promise<any> {
 		const [rideData] = await this.connection.query("select * from cccat16.ride where ride_id = $1", [rideId]);

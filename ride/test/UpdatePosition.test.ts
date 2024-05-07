@@ -1,12 +1,10 @@
 import AcceptRide from "../src/application/usecase/AcceptRide";
 import GetRide from "../src/application/usecase/GetRide";
 import RequestRide from "../src/application/usecase/RequestRide";
-import { Signup } from "../src/application/usecase/Signup";
 import StartRide from "../src/application/usecase/StartRide";
 import UpdatePosition from "../src/application/usecase/UpdatePosition";
 import { PgPromiseAdapter, UnitOfWork } from "../src/infra/database/DatabaseConnection";
 import { MailerGatewayMemory } from "../src/infra/gateway/MailerGateway";
-import { AccountRepositoryDatabase } from "../src/infra/repository/AccountRepository";
 import { PositionRepositoryDatabase } from "../src/infra/repository/PostionRepostiory";
 import { RideRepositoryDatabase } from "../src/infra/repository/RideRepository";
 

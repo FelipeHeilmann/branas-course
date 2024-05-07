@@ -1,25 +1,21 @@
 import GetRide from "../src/application/usecase/GetRide";
 import RequestRide from "../src/application/usecase/RequestRide";
-import { Signup } from "../src/application/usecase/Signup";
-import { AccountRepositoryDatabase } from "../src/infra/repository/AccountRepository";
-import { MailerGatewayMemory } from "../src/infra/gateway/MailerGateway";
 import { RideRepositoryDatabase } from "../src/infra/repository/RideRepository";
 import { PgPromiseAdapter } from "../src/infra/database/DatabaseConnection";
+import AccountGatewayHttp from "../src/infra/gateway/AccountGatewayHttp";
 
 test("Deve solicitar uma corrida", async function () {
 	const connection = new PgPromiseAdapter();
-	const accountRepository = new AccountRepositoryDatabase(connection);
 	const rideRepository = new RideRepositoryDatabase(connection);
-	const mailerGateway = new MailerGatewayMemory();
-	const signup = new Signup(accountRepository, mailerGateway);
+	const accountGateway = new AccountGatewayHttp();
 	const inputSignup = {
 		name: "John Doe",
 		email: `john.doe${Math.random()}@gmail.com`,
 		cpf: "87748248800",
 		isPassenger: true
 	};
-	const outputSignup = await signup.execute(inputSignup);
-	const requestRide = new RequestRide(accountRepository, rideRepository);
+	const outputSignup = await accountGateway.signup(inputSignup);
+	const requestRide = new RequestRide(accountGateway, rideRepository);
 	const inputRequestRide = {
 		passengerId: outputSignup.accountId,
 		fromLat: -27.584905257808835,
@@ -29,7 +25,7 @@ test("Deve solicitar uma corrida", async function () {
 	}
 	const outputRequestRide = await requestRide.execute(inputRequestRide);
 	expect(outputRequestRide.rideId).toBeDefined();
-	const getRide = new GetRide(accountRepository, rideRepository);
+	const getRide = new GetRide(accountGateway, rideRepository);
 	const inputGetRide = {
 		rideId: outputRequestRide.rideId
 	};
@@ -48,11 +44,9 @@ test("Deve solicitar uma corrida", async function () {
 
 test("Não deve poder solicitar uma corrida se não for um passageiro", async function () {
 	const connection = new PgPromiseAdapter();
-	const accountRepository = new AccountRepositoryDatabase(connection)
     const databaseConnection = new PgPromiseAdapter(); 
 	const rideRepository = new RideRepositoryDatabase(databaseConnection);
-	const mailerGateway = new MailerGatewayMemory();
-	const signup = new Signup(accountRepository, mailerGateway);
+	const accountGateway = new AccountGatewayHttp();
 	const inputSignup = {
 		name: "John Doe",
 		email: `john.doe${Math.random()}@gmail.com`,
@@ -60,8 +54,8 @@ test("Não deve poder solicitar uma corrida se não for um passageiro", async fu
 		carPlate: "AAA9999",
 		isDriver: true
 	};
-	const outputSignup = await signup.execute(inputSignup);
-	const requestRide = new RequestRide(accountRepository, rideRepository);
+	const outputSignup = await accountGateway.signup(inputSignup);
+	const requestRide = new RequestRide(accountGateway, rideRepository);
 	const inputRequestRide = {
 		passengerId: outputSignup.accountId,
 		fromLat: -27.584905257808835,
@@ -75,18 +69,16 @@ test("Não deve poder solicitar uma corrida se não for um passageiro", async fu
 
 test("Não deve poder solicitar uma corrida se o passageiro já tiver outra corrida ativa", async function () {
 	const connection = new PgPromiseAdapter();
-	const accountRepository = new AccountRepositoryDatabase(connection)
 	const rideRepository = new RideRepositoryDatabase(connection);
-	const mailerGateway = new MailerGatewayMemory();
-	const signup = new Signup(accountRepository, mailerGateway);
+	const accountGateway = new AccountGatewayHttp();
 	const inputSignup = {
 		name: "John Doe",
 		email: `john.doe${Math.random()}@gmail.com`,
 		cpf: "87748248800",
 		isPassenger: true
 	};
-	const outputSignup = await signup.execute(inputSignup);
-	const requestRide = new RequestRide(accountRepository, rideRepository);
+	const outputSignup = await accountGateway.signup(inputSignup);
+	const requestRide = new RequestRide(accountGateway, rideRepository);
 	const inputRequestRide = {
 		passengerId: outputSignup.accountId,
 		fromLat: -27.584905257808835,

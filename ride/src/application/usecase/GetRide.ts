@@ -1,17 +1,17 @@
-import { AccountRepository } from "../../infra/repository/AccountRepository"
 import RideRepository from "../../infra/repository/RideRepository";
+import AccountGateway from "../gateway/AccountGateway";
 
 export default class GetRide {
 
-	constructor (readonly accountRepository: AccountRepository, readonly rideRepository: RideRepository) {
+	constructor (readonly accountGateway: AccountGateway, readonly rideRepository: RideRepository) {
 	}
 	
 	async execute (input: Input): Promise<Output> {
 		const ride = await this.rideRepository.getRideById(input.rideId);
-		const passenger = await this.accountRepository.getAccountById(ride.passengerId);
+		const passenger = await this.accountGateway.getAccountById(ride.passengerId);
 		let driver;
-		if(ride.getDriverId() !== null) {
-			driver = await this.accountRepository.getAccountById(ride.getDriverId()!)
+		if(ride.driverId !== null) {
+			driver = await this.accountGateway.getAccountById(ride.driverId);
 		}
 		return {
 			rideId: ride.rideId,
@@ -21,10 +21,10 @@ export default class GetRide {
 			toLat: ride.getToLat(),
 			toLong: ride.getToLong(),
 			status: ride.getStatus(),
-			passengerName: passenger.getName(),
-			passengerEmail: passenger.getEmail(),
-			driverEmail: driver?.getEmail(),
-			driverName: driver?.getName(),
+			passengerName: passenger.name,
+			passengerEmail: passenger.email,
+			driverEmail: driver?.email,
+			driverName: driver?.name,
 			lastLat: ride.getLastLat(),
 			lastLong: ride.getLastLong(),
 			distance: ride.getDistance(),

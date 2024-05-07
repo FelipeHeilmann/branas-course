@@ -1,25 +1,21 @@
 import AcceptRide from "../src/application/usecase/AcceptRide";
 import GetRide from "../src/application/usecase/GetRide";
 import RequestRide from "../src/application/usecase/RequestRide";
-import { Signup } from "../src/application/usecase/Signup";
 import { PgPromiseAdapter } from "../src/infra/database/DatabaseConnection";
-import { MailerGatewayMemory } from "../src/infra/gateway/MailerGateway";
-import { AccountRepositoryDatabase } from "../src/infra/repository/AccountRepository";
+import AccountGatewayHttp from "../src/infra/gateway/AccountGatewayHttp";
 import { RideRepositoryDatabase } from "../src/infra/repository/RideRepository";
 
 test("Deve aceitar uma corrida", async function() {
     const connection = new PgPromiseAdapter();
-	const accountRepository = new AccountRepositoryDatabase(connection);
 	const rideRepository = new RideRepositoryDatabase(connection);
-	const mailerGateway = new MailerGatewayMemory();
-	const signup = new Signup(accountRepository, mailerGateway);
+	const accountGateway = new AccountGatewayHttp()
 	const inputSignupPassenger = {
 		name: "John Doe",
 		email: `john.doe${Math.random()}@gmail.com`,
-		cpf: "87748248800",
+		cpf: "97456321558",
 		isPassenger: true
 	};
-    const outputSignupPassenger = await signup.execute(inputSignupPassenger);
+    const outputSignupPassenger = await accountGateway.signup(inputSignupPassenger);
     const inputSignupDriver = {
 		name: "John Doe",
 		email: `john.doe${Math.random()}@gmail.com`,
@@ -27,8 +23,8 @@ test("Deve aceitar uma corrida", async function() {
         carPlate: "AAA9999",
 		isDriver: true
 	};
-	const outputSignupDriver = await signup.execute(inputSignupDriver);
-	const requestRide = new RequestRide(accountRepository, rideRepository);
+	const outputSignupDriver = await accountGateway.signup(inputSignupDriver);
+	const requestRide = new RequestRide(accountGateway, rideRepository);
 	const inputRequestRide = {
 		passengerId: outputSignupPassenger.accountId,
 		fromLat: -27.584905257808835,
@@ -38,11 +34,11 @@ test("Deve aceitar uma corrida", async function() {
 	}
 	const outputRequestRide = await requestRide.execute(inputRequestRide);
 	expect(outputRequestRide.rideId).toBeDefined();
-	const getRide = new GetRide(accountRepository, rideRepository);
+	const getRide = new GetRide(accountGateway, rideRepository);
 	const inputGetRide = {
 		rideId: outputRequestRide.rideId
 	};
-	const accepetRide = new AcceptRide(rideRepository, accountRepository);
+	const accepetRide = new AcceptRide(rideRepository, accountGateway);
     const inputAccpetRide = {
         rideId: outputRequestRide.rideId,
         driverId: outputSignupDriver.accountId

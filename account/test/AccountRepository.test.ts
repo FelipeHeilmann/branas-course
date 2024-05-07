@@ -1,7 +1,7 @@
 import crypto from "crypto";
 import { AccountRepositoryDatabase } from "../src/infra/repository/AccountRepository";
 import Account from "../src/domain/entity/Account";
-import { PgPromiseAdapter } from "../src/infra/database/DatabaseConnection";
+import { PgPromiseAdapter } from "../../ride/src/infra/database/DatabaseConnection";
 
 // Integration Test
 

@@ -1,16 +1,16 @@
 // use case
 
-import { AccountRepository } from "../../infra/repository/AccountRepository"
 import RideRepository from "../../infra/repository/RideRepository";
 import Ride from "../../domain/entity/Ride";
+import AccountGateway from "../gateway/AccountGateway";
 
 export default class RequestRide {
 
-	constructor (readonly accountRepository: AccountRepository, readonly rideRepository: RideRepository) {
+	constructor (readonly accountGateway: AccountGateway, readonly rideRepository: RideRepository) {
 	}
 	
 	async execute (input: Input): Promise<Output> {
-		const account = await this.accountRepository.getAccountById(input.passengerId);
+		const account = await this.accountGateway.getAccountById(input.passengerId);
 		if (!account.isPassenger) throw new Error("Account is not from a passenger");
 		const hasActiveRide = await this.rideRepository.hasActiveRideByPassengerId(input.passengerId);
 		if (hasActiveRide) throw new Error("Passenger has an active ride");
