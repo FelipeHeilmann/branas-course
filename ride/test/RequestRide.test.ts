@@ -1,13 +1,15 @@
-import GetRide from "../src/application/usecase/GetRide";
+import GetRideQuery from "../src/application/query/GetRideQuery";
 import RequestRide from "../src/application/usecase/RequestRide";
 import { RideRepositoryDatabase } from "../src/infra/repository/RideRepository";
 import { PgPromiseAdapter } from "../src/infra/database/DatabaseConnection";
 import AccountGatewayHttp from "../src/infra/gateway/AccountGatewayHttp";
+import { AxiosAdatpter } from "../src/infra/http/HttpClient";
 
 test("Deve solicitar uma corrida", async function () {
 	const connection = new PgPromiseAdapter();
 	const rideRepository = new RideRepositoryDatabase(connection);
-	const accountGateway = new AccountGatewayHttp();
+	const httpClient = new AxiosAdatpter();
+	const accountGateway = new AccountGatewayHttp(httpClient);
 	const inputSignup = {
 		name: "John Doe",
 		email: `john.doe${Math.random()}@gmail.com`,
@@ -25,11 +27,11 @@ test("Deve solicitar uma corrida", async function () {
 	}
 	const outputRequestRide = await requestRide.execute(inputRequestRide);
 	expect(outputRequestRide.rideId).toBeDefined();
-	const getRide = new GetRide(accountGateway, rideRepository);
+	const getRideQuery = new GetRideQuery(connection);
 	const inputGetRide = {
 		rideId: outputRequestRide.rideId
 	};
-	const outputGetRide = await getRide.execute(inputGetRide);
+	const outputGetRide = await getRideQuery.execute(inputGetRide);
 	expect(outputGetRide.rideId).toBe(outputRequestRide.rideId);
 	expect(outputGetRide.status).toBe("requested");
 	expect(outputGetRide.passengerId).toBe(outputSignup.accountId);
@@ -44,9 +46,10 @@ test("Deve solicitar uma corrida", async function () {
 
 test("Não deve poder solicitar uma corrida se não for um passageiro", async function () {
 	const connection = new PgPromiseAdapter();
-    const databaseConnection = new PgPromiseAdapter(); 
+    const databaseConnection = new PgPromiseAdapter();
+	const httpClient = new AxiosAdatpter(); 
 	const rideRepository = new RideRepositoryDatabase(databaseConnection);
-	const accountGateway = new AccountGatewayHttp();
+	const accountGateway = new AccountGatewayHttp(httpClient);
 	const inputSignup = {
 		name: "John Doe",
 		email: `john.doe${Math.random()}@gmail.com`,
@@ -70,7 +73,8 @@ test("Não deve poder solicitar uma corrida se não for um passageiro", async fu
 test("Não deve poder solicitar uma corrida se o passageiro já tiver outra corrida ativa", async function () {
 	const connection = new PgPromiseAdapter();
 	const rideRepository = new RideRepositoryDatabase(connection);
-	const accountGateway = new AccountGatewayHttp();
+	const httpClient = new AxiosAdatpter();
+	const accountGateway = new AccountGatewayHttp(httpClient);
 	const inputSignup = {
 		name: "John Doe",
 		email: `john.doe${Math.random()}@gmail.com`,

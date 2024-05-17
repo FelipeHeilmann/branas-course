@@ -1,15 +1,17 @@
 import AcceptRide from "../src/application/usecase/AcceptRide";
-import GetRide from "../src/application/usecase/GetRide";
+import GetRideQuery from "../src/application/query/GetRideQuery";
 import RequestRide from "../src/application/usecase/RequestRide";
 import StartRide from "../src/application/usecase/StartRide";
 import { PgPromiseAdapter } from "../src/infra/database/DatabaseConnection";
 import AccountGatewayHttp from "../src/infra/gateway/AccountGatewayHttp";
 import { RideRepositoryDatabase } from "../src/infra/repository/RideRepository";
+import { AxiosAdatpter } from "../src/infra/http/HttpClient";
 
 test("Deve iniciar uma corrida", async function() {
     const connection = new PgPromiseAdapter();
 	const rideRepository = new RideRepositoryDatabase(connection);
-	const accountGateway = new AccountGatewayHttp();
+	const httpClient = new AxiosAdatpter();
+	const accountGateway = new AccountGatewayHttp(httpClient);
 	const inputSignupPassenger = {
 		name: "John Doe",
 		email: `john.doe${Math.random()}@gmail.com`,
@@ -35,7 +37,7 @@ test("Deve iniciar uma corrida", async function() {
 	}
 	const outputRequestRide = await requestRide.execute(inputRequestRide);
 	expect(outputRequestRide.rideId).toBeDefined();
-	const getRide = new GetRide(accountGateway, rideRepository);
+	const getRideQuery = new GetRideQuery(connection);
 	const inputGetRide = {
 		rideId: outputRequestRide.rideId
 	};
@@ -50,7 +52,7 @@ test("Deve iniciar uma corrida", async function() {
         rideId: outputRequestRide.rideId
     };
     await startRide.execute(inputStartRide);
-    const outputGetRide = await getRide.execute(inputGetRide);
+    const outputGetRide = await getRideQuery.execute(inputGetRide);
 	expect(outputGetRide.rideId).toBe(outputRequestRide.rideId);
 	expect(outputGetRide.status).toBe("in_progress");
     expect(outputGetRide.driverName).toBe(inputSignupDriver.name);

@@ -1,6 +1,6 @@
 import AcceptRide from "../src/application/usecase/AcceptRide";
 import FinishRide from "../src/application/usecase/FinishRide";
-import GetRide from "../src/application/usecase/GetRide";
+import GetRideQuery from "../src/application/query/GetRideQuery";
 import ProcessPayment from "../src/application/usecase/ProcessPayment";
 import RequestRide from "../src/application/usecase/RequestRide";
 import StartRide from "../src/application/usecase/StartRide";
@@ -45,7 +45,7 @@ test("Deve finalizar uma corrida", async function() {
 	}
 	const outputRequestRide = await requestRide.execute(inputRequestRide);
 	expect(outputRequestRide.rideId).toBeDefined();
-	const getRide = new GetRide(accountGateway, rideRepository);
+	const getRideQuery = new GetRideQuery(connection);
 	const inputGetRide = {
 		rideId: outputRequestRide.rideId
 	};
@@ -92,7 +92,7 @@ test("Deve finalizar uma corrida", async function() {
 		rideId: outputRequestRide.rideId
 	};
 	await finishRide.execute(inputFinishRide);
-    const outputGetRide = await getRide.execute(inputGetRide);
+    const outputGetRide = await getRideQuery.execute(inputGetRide);
 	expect(outputGetRide.rideId).toBe(outputRequestRide.rideId);
 	expect(outputGetRide.status).toBe("completed");
 	expect(outputGetRide.fare).toBe(63);
